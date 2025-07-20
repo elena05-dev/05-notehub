@@ -22,31 +22,59 @@ export interface FetchNotesResponse {
   results: Note[];
   totalPages: number;
 }
-export async function fetchNotes(
-  params: FetchNotesParams
-): Promise<FetchNotesResponse> {
-  const cleanParams = { ...params };
-  if (!cleanParams.search?.trim()) {
-    delete cleanParams.search;
-  }
 
-  const { data } = await instance.get("/notes", { params: cleanParams });
-
-  return {
-    results: data.notes,
-    totalPages: data.totalPages,
-  };
-}
-export async function createNote(note: {
+export interface CreateNotePayload {
   title: string;
   content: string;
   tag: NoteTag;
-}): Promise<Note> {
-  const { data } = await instance.post("/notes", note);
-  return data;
 }
 
-export async function deleteNote(id: string): Promise<Note> {
-  const response = await instance.delete<Note>(`/notes/${id}`);
-  return response.data;
+export async function fetchNotes(
+  params: FetchNotesParams
+): Promise<FetchNotesResponse> {
+  try {
+    const cleanParams = { ...params };
+    if (!cleanParams.search?.trim()) {
+      delete cleanParams.search;
+    }
+
+    const { data } = await instance.get<{ notes: Note[]; totalPages: number }>(
+      "/notes",
+      { params: cleanParams }
+    );
+
+    return {
+      results: data.notes,
+      totalPages: data.totalPages,
+    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to fetch notes");
+  }
+}
+
+export async function createNote(note: CreateNotePayload): Promise<Note> {
+  try {
+    const { data } = await instance.post<Note>("/notes", note);
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to create note");
+  }
+}
+
+export async function deleteNote(id: number): Promise<Note> {
+  try {
+    const { data } = await instance.delete<Note>(`/notes/${id}`);
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to delete note");
+  }
 }

@@ -1,14 +1,9 @@
 import { useState, useEffect } from "react";
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  keepPreviousData,
-} from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 import toast, { Toaster } from "react-hot-toast";
 import { useDebouncedCallback } from "use-debounce";
-import { fetchNotes, deleteNote } from "../../services/noteService";
+import { fetchNotes } from "../../services/noteService";
 import type { FetchNotesResponse } from "../../services/noteService";
 
 import NoteList from "../NoteList/NoteList";
@@ -30,7 +25,6 @@ export default function App() {
     setPage(1);
     setSearchQuery(newSearchQuery);
   }, 300);
-  const queryClient = useQueryClient();
 
   const { data, isLoading, isError, isFetching } = useQuery<FetchNotesResponse>(
     {
@@ -40,19 +34,6 @@ export default function App() {
       placeholderData: keepPreviousData,
     }
   );
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      toast.success("Note deleted");
-    },
-    onError: () => {
-      toast.error("Failed to delete note");
-    },
-  });
-
-  console.log("Fetched notes:", data);
 
   useEffect(() => {
     if (isError) {
@@ -93,13 +74,7 @@ export default function App() {
         !isFetching &&
         data &&
         Array.isArray(data.results) &&
-        data.results.length > 0 && (
-          <NoteList
-            notes={data.results}
-            onDelete={(id) => deleteMutation.mutate(id)}
-            isDeleting={deleteMutation.isPending}
-          />
-        )}
+        data.results.length > 0 && <NoteList notes={data.results} />}
 
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>

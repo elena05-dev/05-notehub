@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Formik, Form, Field, ErrorMessage as FormikError } from "formik";
+import toast from "react-hot-toast";
 import * as Yup from "yup";
 import { createNote } from "../../services/noteService";
 import type { NoteTag } from "../../types/note";
@@ -31,6 +32,14 @@ export default function NoteForm({ onClose }: NoteFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       onClose();
+      toast.success("Note created");
+    },
+    onError: (error: unknown) => {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     },
   });
 
