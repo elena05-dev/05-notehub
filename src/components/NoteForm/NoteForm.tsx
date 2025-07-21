@@ -47,9 +47,8 @@ export default function NoteForm({ onClose }: NoteFormProps) {
     <Formik<FormValues>
       initialValues={{ title: "", content: "", tag: "Todo" }}
       validationSchema={validationSchema}
-      onSubmit={(values, { setSubmitting }) => {
+      onSubmit={(values) => {
         mutation.mutate(values);
-        setSubmitting(false);
       }}
     >
       {({ isSubmitting }) => (

@@ -46,7 +46,7 @@ export default function App() {
       <Toaster position="top-right" />
 
       <header className={css.toolbar}>
-        <SearchBox value={searchQuery} onSearch={updateSearchQuery} />
+        <SearchBox onSearch={updateSearchQuery} />
         {data?.totalPages && data.totalPages > 1 && (
           <Pagination
             totalPages={data.totalPages}
